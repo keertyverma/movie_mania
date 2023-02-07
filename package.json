@@ -1,0 +1,17 @@
+{
+  "name": "movie_mania",
+  "version": "1.0.0",
+  "description": "To maintain movie related information",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
