@@ -3,6 +3,7 @@ const { StatusCodes } = require("http-status-codes");
 
 const logger = require("../utils/logger");
 const { Movie, Genre } = require("../models/movie");
+const { NotFoundError } = require("../errors");
 
 const movieRoute = "/movies";
 
@@ -56,13 +57,13 @@ const getMovieById = async (req, res) => {
 
   logger.debug(`Fetching movie with id = ${id}`);
   const movie = await Movie.findById(id);
-  if (movie) {
-    res.status(StatusCodes.OK).json(movie);
-  } else {
+
+  if (!movie) {
     const error = `No movie found with id = ${id}`;
     logger.error(error);
-    res.status(StatusCodes.NOT_FOUND).json({ msg: error });
+    throw new NotFoundError(error);
   }
+  res.status(StatusCodes.OK).json(movie);
 };
 
 const updateMovieById = async (req, res) => {
@@ -73,13 +74,13 @@ const updateMovieById = async (req, res) => {
   const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, {
     new: true,
   });
-  if (updatedMovie) {
-    res.status(StatusCodes.OK).json(updatedMovie);
-  } else {
+  if (!updatedMovie) {
     const error = `No movie found with id = ${id}`;
     logger.error(error);
-    res.status(StatusCodes.NOT_FOUND).json({ msg: error });
+    throw new NotFoundError(error);
   }
+
+  res.status(StatusCodes.OK).json(updatedMovie);
 };
 
 const deleteMovieById = async (req, res) => {
@@ -88,13 +89,12 @@ const deleteMovieById = async (req, res) => {
 
   logger.debug(`Deleting movie with id = ${id}`);
   const deletedMovie = await Movie.findByIdAndDelete(id);
-  if (deletedMovie) {
-    res.status(StatusCodes.OK).json(deletedMovie);
-  } else {
+  if (!deletedMovie) {
     const error = `No movie found with id = ${id}`;
     logger.error(error);
-    res.status(StatusCodes.NOT_FOUND).json({ msg: error });
+    throw new NotFoundError(error);
   }
+  res.status(StatusCodes.OK).json(deletedMovie);
 };
 
 module.exports = {
