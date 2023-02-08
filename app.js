@@ -6,6 +6,7 @@ const logger = require("./utils/logger");
 const express = require("express");
 const mongoose = require("mongoose");
 const movieRouter = require("./routes/movies");
+const notFound = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ app.get(`/${config.get("app_name")}`, (req, res) => {
 app.use(`/${config.get("app_name")}/movies`, movieRouter);
 
 // Adding Middleware
+app.use(notFound);
 app.use(errorHandlerMiddleware);
 
 // Connect with DB
