@@ -43,20 +43,10 @@ const createMovie = async (req, res) => {
   }
 
   logger.debug("creating new movie document");
-  try {
-    const movieResult = await Movie.create(movie);
-    logger.debug(`new movie is added with id = ${movieResult.id}`);
+  const movieResult = await Movie.create(movie);
+  logger.debug(`new movie is added with id = ${movieResult.id}`);
 
-    res.status(StatusCodes.CREATED).json(movieResult);
-  } catch (exceptions) {
-    let validationErrors = [];
-    for (field in exceptions.errors) {
-      validationErrors.push(exceptions.errors[field].message);
-    }
-    res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ name: "ValidationError", message: validationErrors.join(", ") });
-  }
+  res.status(StatusCodes.CREATED).json(movieResult);
 };
 
 module.exports = {
