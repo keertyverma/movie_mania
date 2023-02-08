@@ -49,7 +49,23 @@ const createMovie = async (req, res) => {
   res.status(StatusCodes.CREATED).json(movieResult);
 };
 
+const getMovieById = async (req, res) => {
+  logger.debug(`GET Request on Route -> ${movieRoute}/:id`);
+
+  const id = req.params.id;
+
+  logger.debug(`Fetching movie with id = ${id}`);
+  const movie = await Movie.findById(id);
+  if (movie) {
+    res.status(StatusCodes.OK).json(movie);
+  } else {
+    const error = `No movie found with id = ${id}`;
+    logger.error(error);
+    res.status(StatusCodes.NOT_FOUND).json({ msg: error });
+  }
+};
 module.exports = {
   getAllMovies,
   createMovie,
+  getMovieById,
 };
