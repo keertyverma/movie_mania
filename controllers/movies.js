@@ -10,7 +10,7 @@ const movieRoute = "/movies";
 const getAllMovies = async (req, res) => {
   logger.debug(`GET Request on Route -> ${movieRoute}/`);
   const movies = await Movie.find();
-  res.send(movies);
+  res.status(StatusCodes.OK).json(movies);
 };
 
 const createGenre = async (genres) => {
