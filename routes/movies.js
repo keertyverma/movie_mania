@@ -8,10 +8,12 @@ const {
 } = require("../controllers/movies");
 
 const router = express.Router();
-router.get("/", getAllMovies);
-router.post("/", createMovie);
-router.get("/:id", getMovieById);
-router.patch("/:id", updateMovieById);
-router.delete("/:id", deleteMovieById);
+
+router.route("/").get(getAllMovies).post(createMovie);
+router
+  .route("/:id")
+  .get(getMovieById)
+  .patch(updateMovieById)
+  .delete(deleteMovieById);
 
 module.exports = router;
