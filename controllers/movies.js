@@ -64,8 +64,27 @@ const getMovieById = async (req, res) => {
     res.status(StatusCodes.NOT_FOUND).json({ msg: error });
   }
 };
+
+const updateMovieById = async (req, res) => {
+  logger.debug(`Patch Request on Route -> ${movieRoute}/:id`);
+  const id = req.params.id;
+
+  logger.debug(`Updating movie with id = ${id}`);
+  const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, {
+    new: true,
+  });
+  if (updatedMovie) {
+    res.status(StatusCodes.OK).json(updatedMovie);
+  } else {
+    const error = `No movie found with id = ${id}`;
+    logger.error(error);
+    res.status(StatusCodes.NOT_FOUND).json({ msg: error });
+  }
+};
+
 module.exports = {
   getAllMovies,
   createMovie,
   getMovieById,
+  updateMovieById,
 };
