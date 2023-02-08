@@ -82,9 +82,25 @@ const updateMovieById = async (req, res) => {
   }
 };
 
+const deleteMovieById = async (req, res) => {
+  logger.debug(`Delete Request on Route -> ${movieRoute}/:id`);
+  const id = req.params.id;
+
+  logger.debug(`Deleting movie with id = ${id}`);
+  const deletedMovie = await Movie.findByIdAndDelete(id);
+  if (deletedMovie) {
+    res.status(StatusCodes.OK).json(deletedMovie);
+  } else {
+    const error = `No movie found with id = ${id}`;
+    logger.error(error);
+    res.status(StatusCodes.NOT_FOUND).json({ msg: error });
+  }
+};
+
 module.exports = {
   getAllMovies,
   createMovie,
   getMovieById,
   updateMovieById,
+  deleteMovieById,
 };
