@@ -11,6 +11,7 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get(`/${config.get("app_name")}`, (req, res) => {
   res.send("<h1>Welcome to Movie mania</h1>");
