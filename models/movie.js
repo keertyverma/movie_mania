@@ -28,8 +28,6 @@ const movieSchema = new mongoose.Schema({
   poster_url: String,
 });
 
-const Genre = mongoose.model("Genre", genreSchema);
 const Movie = mongoose.model("Movie", movieSchema);
 
 exports.Movie = Movie;
-exports.Genre = Genre;

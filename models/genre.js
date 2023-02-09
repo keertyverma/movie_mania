@@ -1,0 +1,21 @@
+const mongoose = require("mongoose");
+
+const genreSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [
+      true,
+      "Please check your data entry, no name specified for genre!",
+    ],
+    get: (v) => _.capitalize(v),
+    set: (v) => _.capitalize(v),
+    trim: true,
+  },
+});
+
+const Genre = mongoose.model("Genre", genreSchema);
+
+module.exports = {
+  genreSchema,
+  Genre,
+};
