@@ -6,6 +6,8 @@ const logger = require("./utils/logger");
 const express = require("express");
 const mongoose = require("mongoose");
 const movieRouter = require("./routes/movies");
+const genreRouter = require("./routes/genres");
+
 const notFound = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
@@ -20,6 +22,7 @@ app.get(`/${config.get("app_name")}`, (req, res) => {
 
 // routes
 app.use(`/${config.get("app_name")}/movies`, movieRouter);
+app.use(`/${config.get("app_name")}/genres`, genreRouter);
 
 // Adding Middleware
 app.use(notFound);
