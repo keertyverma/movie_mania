@@ -1,6 +1,7 @@
 const express = require("express");
 const { StatusCodes } = require("http-status-codes");
 const Joi = require("joi");
+Joi.objectId = require("joi-objectid")(Joi);
 
 const logger = require("../utils/logger");
 const { Movie } = require("../models/movie");
@@ -12,7 +13,7 @@ const movieRoute = "/movies";
 const validateMovie = (movie) => {
   const schema = Joi.object({
     title: Joi.string().required(),
-    genreIds: Joi.array(),
+    genreIds: Joi.array().items(Joi.objectId()),
     releaseDate: Joi.date(),
     posterUrl: Joi.string(),
   });
