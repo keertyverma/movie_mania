@@ -1,5 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const logger = require("../utils/logger");
+const { NotFoundError } = require("../errors");
 
 const { Genre } = require("../models/genre");
 
@@ -21,7 +22,22 @@ const createGenre = async (req, res) => {
   res.status(StatusCodes.CREATED).json(genre);
 };
 
+const getGenreById = async (req, res) => {
+  logger.debug(`Get Request on Route -> ${genreRoute}/:id`);
+
+  const id = req.params.id;
+  const genre = await Genre.findById(id).select("name");
+  if (!genre) {
+    const error = `Genre with id = ${id} is not found.`;
+    logger.error(error);
+    throw new NotFoundError(error);
+  }
+
+  res.status(StatusCodes.OK).json(genre);
+};
+
 module.exports = {
   getAllGenres,
   createGenre,
+  getGenreById,
 };
