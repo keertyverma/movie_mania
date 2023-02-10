@@ -13,6 +13,13 @@ const errorHandlerMiddleware = (err, req, res, next) => {
       .join(",");
   }
 
+  if (err.code && err.code === 11000) {
+    customError.statusCode = StatusCodes.BAD_REQUEST;
+    customError.msg = `Duplicate value entered for '${Object.keys(
+      err.keyValue
+    )}' field, please choose another value`;
+  }
+
   if (err.name === "CastError") {
     customError.statusCode = StatusCodes.BAD_REQUEST;
   }

@@ -8,6 +8,7 @@ const genreSchema = new mongoose.Schema({
       true,
       "Please check your data entry, no name specified for genre!",
     ],
+    unique: true,
     get: (v) => _.capitalize(v),
     set: (v) => _.capitalize(v),
     trim: true,
