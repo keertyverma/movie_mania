@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const logger = require("../utils/logger");
-const { NotFoundError } = require("../errors");
+const { NotFoundError, BadRequestError } = require("../errors");
 
 const { Genre } = require("../models/genre");
 
@@ -23,10 +23,35 @@ const createGenre = async (req, res) => {
 };
 
 const getGenreById = async (req, res) => {
-  logger.debug(`Get Request on Route -> ${genreRoute}/:id`);
+  logger.debug(`GET Request on Route -> ${genreRoute}/:id`);
 
   const id = req.params.id;
   const genre = await Genre.findById(id).select("name");
+  if (!genre) {
+    const error = `Genre with id = ${id} is not found.`;
+    logger.error(error);
+    throw new NotFoundError(error);
+  }
+
+  res.status(StatusCodes.OK).json(genre);
+};
+
+const updateGenre = async (req, res) => {
+  logger.debug(`PATCH Request on Route -> ${genreRoute}/:id`);
+
+  if (!req.body.name) {
+    throw new BadRequestError("Genre 'name' field cannot be empty");
+  }
+
+  const id = req.params.id;
+  const genre = await Genre.findByIdAndUpdate(
+    id,
+    {
+      $set: { name: req.body.name },
+    },
+    { new: true }
+  ).select("name");
+
   if (!genre) {
     const error = `Genre with id = ${id} is not found.`;
     logger.error(error);
@@ -40,4 +65,5 @@ module.exports = {
   getAllGenres,
   createGenre,
   getGenreById,
+  updateGenre,
 };
