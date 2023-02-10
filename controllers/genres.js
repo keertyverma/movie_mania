@@ -61,9 +61,25 @@ const updateGenre = async (req, res) => {
   res.status(StatusCodes.OK).json(genre);
 };
 
+const deleteGenre = async (req, res) => {
+  logger.debug(`DELETE Request on Route -> ${genreRoute}/:id`);
+
+  const id = req.params.id;
+  const genre = await Genre.findByIdAndDelete(id).select("name");
+
+  if (!genre) {
+    const error = `Genre with id = ${id} is not found.`;
+    logger.error(error);
+    throw new NotFoundError(error);
+  }
+
+  res.status(StatusCodes.OK).json(genre);
+};
+
 module.exports = {
   getAllGenres,
   createGenre,
   getGenreById,
   updateGenre,
+  deleteGenre,
 };
