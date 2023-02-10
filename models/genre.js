@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const genreSchema = new mongoose.Schema({
   name: {
