@@ -2,7 +2,8 @@ const express = require("express");
 const { StatusCodes } = require("http-status-codes");
 
 const logger = require("../utils/logger");
-const { Movie, Genre } = require("../models/movie");
+const { Movie } = require("../models/movie");
+const { Genre } = require("../models/genre");
 const { NotFoundError } = require("../errors");
 
 const movieRoute = "/movies";
@@ -13,34 +14,45 @@ const getAllMovies = async (req, res) => {
   res.status(StatusCodes.OK).json(movies);
 };
 
-const createGenre = async (genres) => {
-  const insertGenres = genres.map((genre) => {
-    return { name: genre };
-  });
+const getGenres = async (genreIds) => {
+  logger.debug(`finding all genre by ids = ${genreIds}`);
 
-  const genreResult = await Genre.create(insertGenres);
-  logger.debug(`Genres are added.`);
-  return genreResult;
+  const genres = await Genre.find({
+    _id: {
+      $in: genreIds,
+    },
+  }).select("name");
+
+  // find any missing genre ids
+  const fetchedIds = genres.map((genre) => genre._id.toString());
+  const missingIds = genreIds.filter((id) => !fetchedIds.includes(id));
+
+  if (missingIds.length > 0) {
+    throw new NotFoundError(`Genre Ids = ${missingIds} are not found`);
+  }
+
+  return genres;
 };
 
 const createMovie = async (req, res) => {
   logger.debug(`POST Request on Route -> ${movieRoute}/`);
 
   const movie = {
-    name: req.body.name,
+    title: req.body.title,
   };
 
-  const genres = req.body.genres;
-  if (genres) {
-    const movieGenres = await createGenre(genres);
-    movie.genres = movieGenres;
+  // user will pass list of genre ID's
+  const genreIds = req.body.genreIds;
+  if (genreIds) {
+    // fetch all genre by id
+    movie.genres = await getGenres(genreIds);
   }
 
-  if (req.body.release_date) {
-    movie.release_date = req.body.release_date;
+  if (req.body.releaseDate) {
+    movie.releaseDate = req.body.releaseDate;
   }
-  if (req.body.poster_url) {
-    movie.poster_url = req.body.poster_url;
+  if (req.body.posterUrl) {
+    movie.posterUrl = req.body.posterUrl;
   }
 
   logger.debug("creating new movie document");
