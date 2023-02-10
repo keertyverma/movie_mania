@@ -1,13 +1,24 @@
 const express = require("express");
 const { StatusCodes } = require("http-status-codes");
+const Joi = require("joi");
 
 const logger = require("../utils/logger");
 const { Movie } = require("../models/movie");
 const { Genre } = require("../models/genre");
-const { NotFoundError } = require("../errors");
+const { NotFoundError, BadRequestError } = require("../errors");
 
 const movieRoute = "/movies";
 
+const validateMovie = (movie) => {
+  const schema = Joi.object({
+    title: Joi.string().required(),
+    genreIds: Joi.array(),
+    releaseDate: Joi.date(),
+    posterUrl: Joi.string(),
+  });
+
+  return schema.validate(movie);
+};
 const getAllMovies = async (req, res) => {
   logger.debug(`GET Request on Route -> ${movieRoute}/`);
   const movies = await Movie.find().select({ __v: 0 });
@@ -36,6 +47,11 @@ const _getGenres = async (genreIds) => {
 
 const createMovie = async (req, res) => {
   logger.debug(`POST Request on Route -> ${movieRoute}/`);
+
+  const { error } = validateMovie(req.body);
+  if (error) {
+    throw new BadRequestError(error.details[0].message);
+  }
 
   const movie = {
     title: req.body.title,
@@ -83,6 +99,7 @@ const updateMovieById = async (req, res) => {
   const id = req.params.id;
 
   logger.debug(`Updating movie with id = ${id}`);
+  //TODO: update genre
   const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, {
     new: true,
   }).select({ __v: 0 });
