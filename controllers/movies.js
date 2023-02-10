@@ -10,11 +10,11 @@ const movieRoute = "/movies";
 
 const getAllMovies = async (req, res) => {
   logger.debug(`GET Request on Route -> ${movieRoute}/`);
-  const movies = await Movie.find();
+  const movies = await Movie.find().select({ __v: 0 });
   res.status(StatusCodes.OK).json(movies);
 };
 
-const getGenres = async (genreIds) => {
+const _getGenres = async (genreIds) => {
   logger.debug(`finding all genre by ids = ${genreIds}`);
 
   const genres = await Genre.find({
@@ -45,7 +45,7 @@ const createMovie = async (req, res) => {
   const genreIds = req.body.genreIds;
   if (genreIds) {
     // fetch all genre by id
-    movie.genres = await getGenres(genreIds);
+    movie.genres = await _getGenres(genreIds);
   }
 
   if (req.body.releaseDate) {
@@ -68,7 +68,7 @@ const getMovieById = async (req, res) => {
   const id = req.params.id;
 
   logger.debug(`Fetching movie with id = ${id}`);
-  const movie = await Movie.findById(id);
+  const movie = await Movie.findById(id).select({ __v: 0 });
 
   if (!movie) {
     const error = `No movie found with id = ${id}`;
@@ -85,7 +85,7 @@ const updateMovieById = async (req, res) => {
   logger.debug(`Updating movie with id = ${id}`);
   const updatedMovie = await Movie.findByIdAndUpdate(id, req.body, {
     new: true,
-  });
+  }).select({ __v: 0 });
   if (!updatedMovie) {
     const error = `No movie found with id = ${id}`;
     logger.error(error);
@@ -100,7 +100,7 @@ const deleteMovieById = async (req, res) => {
   const id = req.params.id;
 
   logger.debug(`Deleting movie with id = ${id}`);
-  const deletedMovie = await Movie.findByIdAndDelete(id);
+  const deletedMovie = await Movie.findByIdAndDelete(id).select({ __v: 0 });
   if (!deletedMovie) {
     const error = `No movie found with id = ${id}`;
     logger.error(error);
