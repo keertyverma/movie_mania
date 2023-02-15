@@ -18,6 +18,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+if (!process.env.JWT_PRIVATE_KEY) {
+  logger.error("FATAL ERROR! JWT_PRIVATE_KEY is not defined");
+  process.exit(1);
+}
+
 app.get(`/${config.get("app_name")}`, (req, res) => {
   res.send("<h1>Welcome to Movie mania</h1>");
 });
