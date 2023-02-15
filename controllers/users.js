@@ -39,7 +39,14 @@ const createUser = async (req, res) => {
 
   await user.save();
 
-  res.status(StatusCodes.CREATED).json(_.pick(user, ["_id", "name", "email"]));
+  // generate auth code for authorization
+  const token = user.generateAuthToken();
+
+  // send auth code in response header
+  res
+    .header("x-auth-code", token)
+    .status(StatusCodes.CREATED)
+    .json(_.pick(user, ["_id", "name", "email"]));
 };
 
 module.exports = {
