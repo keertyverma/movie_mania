@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const _ = require("lodash");
+const bcrypt = require("bcrypt");
 
 const { BadRequestError } = require("../errors");
 const { StatusCodes } = require("http-status-codes");
@@ -31,6 +32,11 @@ const createUser = async (req, res) => {
 
   // create user
   user = new User(_.pick(req.body, ["name", "email", "password"]));
+
+  // secure password with hashing
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
+
   await user.save();
 
   res.status(StatusCodes.CREATED).json(_.pick(user, ["_id", "name", "email"]));
