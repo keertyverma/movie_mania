@@ -7,6 +7,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const movieRouter = require("./routes/movies");
 const genreRouter = require("./routes/genres");
+const userRouter = require("./routes/users");
 
 const notFound = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
@@ -23,6 +24,7 @@ app.get(`/${config.get("app_name")}`, (req, res) => {
 // routes
 app.use(`/${config.get("app_name")}/movies`, movieRouter);
 app.use(`/${config.get("app_name")}/genres`, genreRouter);
+app.use(`/${config.get("app_name")}/users`, userRouter);
 
 // Adding Middleware
 app.use(notFound);
