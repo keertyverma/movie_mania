@@ -35,7 +35,8 @@ const authenticateUser = async (req, res) => {
 
   if (!isPasswordValid) throw new BadRequestError("Invalid password");
 
-  res.status(StatusCodes.OK).send("Logged in successfully");
+  const token = user.generateAuthToken();
+  res.status(StatusCodes.OK).json({ token: token });
 };
 
 module.exports = authenticateUser;
