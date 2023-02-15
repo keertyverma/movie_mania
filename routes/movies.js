@@ -6,14 +6,15 @@ const {
   updateMovieById,
   deleteMovieById,
 } = require("../controllers/movies");
+const auth = require("../middleware/auth");
 
 const router = express.Router();
 
-router.route("/").get(getAllMovies).post(createMovie);
+router.route("/").get(getAllMovies).post(auth, createMovie);
 router
   .route("/:id")
   .get(getMovieById)
-  .patch(updateMovieById)
-  .delete(deleteMovieById);
+  .patch(auth, updateMovieById)
+  .delete(auth, deleteMovieById);
 
 module.exports = router;
