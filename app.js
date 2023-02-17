@@ -28,26 +28,29 @@ app.get(`/${config.get("app_name")}`, (req, res) => {
 });
 
 // routes
-app.use(`/${config.get("app_name")}/movies`, movieRouter);
-app.use(`/${config.get("app_name")}/genres`, genreRouter);
-app.use(`/${config.get("app_name")}/users`, userRouter);
-app.use(`/${config.get("app_name")}/auth`, authRouter);
+app.use(`/${config.get("app_name")}/api/movies`, movieRouter);
+app.use(`/${config.get("app_name")}/api/genres`, genreRouter);
+app.use(`/${config.get("app_name")}/api/users`, userRouter);
+app.use(`/${config.get("app_name")}/api/auth`, authRouter);
 
 // Adding Middleware
 app.use(notFound);
 app.use(errorHandlerMiddleware);
 
 // Connect with DB
+const db = config.get("mongoURI");
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(db)
   .then(() => {
-    logger.info("Connected to Mongo DB");
+    logger.info(`Connected to ${db}...`);
   })
   .catch((err) => {
     logger.error(err);
   });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.debug(`App Environment = ${process.env.NODE_ENV}`);
   logger.info(`Server is listening on PORT: ${PORT}`);
 });
+
+module.exports = server;
