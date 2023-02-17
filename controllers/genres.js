@@ -1,10 +1,17 @@
 const { StatusCodes } = require("http-status-codes");
+const Joi = require("joi");
+
 const logger = require("../utils/logger");
 const { NotFoundError, BadRequestError } = require("../errors");
-
 const { Genre } = require("../models/genre");
 
 const genreRoute = "/genres";
+
+const validateGenre = function (genre) {
+  const schema = Joi.object({ name: Joi.string().required() });
+
+  return schema.validate(genre);
+};
 
 const getAllGenres = async (req, res) => {
   logger.debug(`GET Request on Route -> ${genreRoute}/`);
@@ -14,6 +21,11 @@ const getAllGenres = async (req, res) => {
 
 const createGenre = async (req, res) => {
   logger.debug(`POST Request on Route -> ${genreRoute}/`);
+
+  const { error } = validateGenre(req.body);
+  if (error) {
+    throw new BadRequestError(error.details[0].message);
+  }
 
   logger.debug("creating new genre document");
   const genre = await Genre.create({ name: req.body.name });
