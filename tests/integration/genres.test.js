@@ -4,8 +4,10 @@ const mongoose = require("mongoose");
 const _ = require("lodash");
 
 const { Genre } = require("../../models/genre");
+const User = require("../../models/user");
 
 let server;
+let endpoint = `/${config.get("app_name")}/api/genres`;
 
 describe("/api/genres", () => {
   beforeEach(() => {
@@ -25,9 +27,7 @@ describe("/api/genres", () => {
         { name: "genre2" },
       ]);
 
-      const res = await request(server).get(
-        `/${config.get("app_name")}/api/genres`
-      );
+      const res = await request(server).get(endpoint);
 
       expect(res.status).toBe(200);
       expect(res.body.length).toBe(2);
@@ -44,9 +44,7 @@ describe("/api/genres", () => {
 
       const id = genre._id;
 
-      const res = await request(server).get(
-        `/${config.get("app_name")}/api/genres/${id}`
-      );
+      const res = await request(server).get(`${endpoint}/${id}`);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("_id", genre._id.toHexString());
@@ -56,9 +54,7 @@ describe("/api/genres", () => {
     it("should return BadRequestError-400 if id is not a valid mongoose ObjectID type", async () => {
       const invalidID = "1";
 
-      const res = await request(server).get(
-        `/${config.get("app_name")}/api/genres/${invalidID}`
-      );
+      const res = await request(server).get(`${endpoint}/${invalidID}`);
 
       expect(res.status).toBe(400);
       expect(res.body.msg).toMatch(/Invalid ID/);
@@ -67,12 +63,59 @@ describe("/api/genres", () => {
     it("should return NotFoundError-404 if genre is not found by id", async () => {
       const id = new mongoose.Types.ObjectId().toHexString();
 
-      const res = await request(server).get(
-        `/${config.get("app_name")}/api/genres/${id}`
-      );
+      const res = await request(server).get(`${endpoint}/${id}`);
 
       expect(res.status).toBe(404);
       expect(res.body.msg).toMatch(/is not found/);
+    });
+  });
+
+  describe("POST /", () => {
+    let token;
+    let name;
+
+    const exec = async () => {
+      return await request(server)
+        .post(endpoint)
+        .set("x-auth-code", token)
+        .send({ name: name });
+    };
+
+    beforeEach(() => {
+      token = new User().generateAuthToken();
+      name = "genre1";
+    });
+
+    it("should return UnAuthorized-401 if client is not logged in", async () => {
+      token = "";
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should return BadRequestError-400 if genre is invalid", async () => {
+      // genre value is not string
+
+      name = 12345;
+      const res = await exec();
+
+      expect(res.status).toBe(400);
+    });
+
+    it("should save genre if valid", async () => {
+      const res = await exec();
+
+      // Genre name gets capatilized while saving
+      const genre = await User.find({ name: "Genre1" });
+      expect(genre).not.toBeNull();
+    });
+
+    it("should return genre if valid", async () => {
+      const res = await exec();
+
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty("_id");
+      expect(res.body).toHaveProperty("name", "Genre1");
     });
   });
 });
