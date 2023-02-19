@@ -51,8 +51,9 @@ const getGenreById = async (req, res) => {
 const updateGenre = async (req, res) => {
   logger.debug(`PATCH Request on Route -> ${genreRoute}/:id`);
 
-  if (!req.body.name) {
-    throw new BadRequestError("Genre 'name' field cannot be empty");
+  const { error } = validateGenre(req.body);
+  if (error) {
+    throw new BadRequestError(error.details[0].message);
   }
 
   const id = req.params.id;
