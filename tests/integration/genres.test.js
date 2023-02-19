@@ -118,4 +118,120 @@ describe("/api/genres", () => {
       expect(res.body).toHaveProperty("name", "Genre1");
     });
   });
+
+  describe("PATCH /", () => {
+    let id;
+    let token;
+    let toUpdate;
+
+    beforeEach(async () => {
+      token = new User().generateAuthToken();
+
+      let genre = new Genre({ name: "genre1" });
+      await genre.save();
+      id = genre._id;
+    });
+
+    const exec = async () => {
+      return await request(server)
+        .patch(`${endpoint}/${id}`)
+        .send({ name: toUpdate })
+        .set("x-auth-code", token);
+    };
+
+    it("should return UnAuthorized-401 if client is not logged in", async () => {
+      token = "";
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should update genre if input is valid", async () => {
+      toUpdate = "genre2";
+
+      await exec();
+      const genre = await Genre.findById(id);
+
+      expect(genre.name).toEqual(_.capitalize(toUpdate));
+    });
+
+    it("should return 200 if input is valid", async () => {
+      toUpdate = "genre2";
+
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("name", _.capitalize(toUpdate));
+    });
+
+    it("should throw 400-BadRequestError if input is invalid", async () => {
+      // genre name must be of string type only
+      toUpdate = 12345;
+
+      const res = await exec();
+
+      expect(res.status).toBe(400);
+      expect(res.body.msg).toMatch(/must be a string/);
+    });
+
+    it("should throw 404-NotFoundError if genre id is invalid", async () => {
+      id = new mongoose.Types.ObjectId();
+      toUpdate = "genre2";
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+      expect(res.body.msg).toMatch(/not found/);
+    });
+  });
+
+  describe("DELETE /", () => {
+    let token;
+    let id;
+
+    beforeEach(async () => {
+      token = new User().generateAuthToken();
+
+      const genre = new Genre({ name: "genre1" });
+      await genre.save();
+
+      id = genre._id;
+    });
+
+    const exec = async () => {
+      return await request(server)
+        .delete(`${endpoint}/${id}`)
+        .set("x-auth-code", token);
+    };
+
+    it("should return 401-Unauthorize if client is not logged in", async () => {
+      token = "";
+
+      const res = await exec();
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should delete genre if id is valid", async () => {
+      await exec();
+
+      const genre = await Genre.findById(id);
+      expect(genre).toBeNull();
+    });
+
+    it("should return 200 if id is valid", async () => {
+      const res = await exec();
+
+      expect(res.status).toBe(200);
+    });
+
+    it("should return 404-NotFoundError if id is invalid", async () => {
+      id = new mongoose.Types.ObjectId();
+
+      const res = await exec();
+
+      expect(res.status).toBe(404);
+      expect(res.body.msg).toMatch(/not found/);
+    });
+  });
 });
